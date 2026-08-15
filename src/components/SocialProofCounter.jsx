@@ -1,31 +1,36 @@
 import React from 'react';
-import { Users, Sparkles, TrendingUp } from 'lucide-react';
+import { Users, TrendingUp } from 'lucide-react';
 
 export default function SocialProofCounter({ totalVotes }) {
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 mb-4 animate-fade-in">
-      <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-blue-950/70 via-slate-900/90 to-cyan-950/70 border border-blue-500/30 backdrop-blur-xl shadow-lg flex items-center justify-between gap-3">
+    <div className="w-full max-w-3xl mx-auto px-4 mb-3 animate-fade-in">
+      <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/40 flex items-center justify-center flex-shrink-0 text-blue-400">
-            <Users className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-xl bg-green-100 border border-green-200 flex items-center justify-center flex-shrink-0 text-green-700 font-bold">
+            <Users className="w-4 h-4" />
           </div>
           <div>
-            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-cyan-400">
-              <Sparkles className="w-3 h-3" />
-              <span>Participación Ciudadana</span>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-green-800">
+              Participación Ciudadana
             </div>
-            <div className="text-base sm:text-lg font-black text-white leading-tight">
-              <span className="text-cyan-300 font-mono text-lg sm:text-xl mr-1.5 font-black">
-                {totalVotes.toLocaleString()}
-              </span>
-              personas ya votaron
+            <div className="text-sm sm:text-base font-black text-slate-900 leading-tight">
+              {totalVotes === 0 ? (
+                <span>¡Sé el primero en participar en este sondeo!</span>
+              ) : (
+                <>
+                  <span className="text-green-700 font-mono text-base sm:text-lg mr-1 font-black">
+                    {totalVotes.toLocaleString()}
+                  </span>
+                  {totalVotes === 1 ? 'persona ya votó' : 'personas ya votaron'}
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-xs font-medium text-slate-300">
-          <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Actualizado en vivo</span>
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
+          <TrendingUp className="w-3.5 h-3.5 text-green-700" />
+          <span>En vivo</span>
         </div>
       </div>
     </div>

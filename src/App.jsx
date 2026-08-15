@@ -49,29 +49,22 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center text-slate-200 px-4">
-        <div className="relative mb-4">
-          <div className="w-16 h-16 rounded-full border-4 border-slate-700 border-t-brand-accent animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-brand-accent">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-800 px-4">
+        <div className="relative mb-3">
+          <div className="w-14 h-14 rounded-full border-4 border-slate-200 border-t-green-700 animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center text-xs font-black text-green-700">
             2026
           </div>
         </div>
-        <h2 className="text-xl font-bold text-white tracking-tight">Anteño TV</h2>
-        <p className="text-xs text-slate-400 mt-1">Cargando encuesta oficial...</p>
+        <h2 className="text-xl font-black text-slate-900 tracking-tight">Anteño TV</h2>
+        <p className="text-xs text-slate-500 font-medium mt-1">Cargando encuesta oficial...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-brand-dark text-slate-100 selection:bg-brand-primary selection:text-white relative overflow-x-hidden">
-      {/* Fondo con Mallas de Gradiente Radial */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-blue-600/15 rounded-full blur-[140px]"></div>
-        <div className="absolute top-1/3 -left-40 w-[600px] h-[600px] bg-cyan-600/10 rounded-full blur-[160px]"></div>
-        <div className="absolute bottom-10 -right-40 w-[600px] h-[600px] bg-blue-700/10 rounded-full blur-[160px]"></div>
-      </div>
-
-      {/* 1. Header Oficial (Anteño TV + TeoDev) */}
+    <div className="min-h-screen flex flex-col bg-[#f8fafc] text-slate-900 relative">
+      {/* 1. Header Oficial (Anteño TV + TeoDev + Bandera Antonio Ante) */}
       <Header />
 
       {/* 2. Disclaimer Legal Visible Inmediatamente */}
@@ -92,7 +85,7 @@ export default function App() {
       </div>
 
       {/* Contenido Principal en UNA Sola Pantalla */}
-      <main className="flex-grow max-w-4xl mx-auto w-full px-4 pt-4 sm:pt-6">
+      <main className="flex-grow max-w-4xl mx-auto w-full px-4 pt-3 sm:pt-5">
         {/* Temporizador Regresivo dinámico hasta fecha_cierre */}
         <CountdownTimer 
           fechaCierre={dignidad?.fecha_cierre} 
@@ -107,8 +100,8 @@ export default function App() {
 
         {/* Alerta de Error si ocurre */}
         {error && (
-          <div className="max-w-2xl mx-auto mb-4 p-3 rounded-2xl bg-red-950/40 border border-red-500/40 text-red-300 text-xs sm:text-sm flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-red-400 flex-shrink-0" />
+          <div className="max-w-2xl mx-auto mb-4 p-3 rounded-2xl bg-red-50 border border-red-300 text-red-800 text-xs sm:text-sm font-bold flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-red-600 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -119,9 +112,9 @@ export default function App() {
           /* VISTA DE VOTACIÓN (Tarjetas de Candidatos Protagonistas)        */
           /* ============================================================== */
           <section className="animate-fade-in">
-            <div className="text-center mb-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-brand-accent">
-                Selecciona una opción para votar
+            <div className="text-center mb-3">
+              <span className="inline-block px-3 py-1 rounded-full bg-green-100 text-green-900 text-xs font-black uppercase tracking-wider border border-green-200">
+                Pulsa el botón verde para elegir a tu candidato
               </span>
             </div>
 
@@ -146,7 +139,7 @@ export default function App() {
               />
             )}
 
-            {/* 1. Contador Total de Participación (Social Proof) */}
+            {/* 1. Contador Total de Participación */}
             <SocialProofCounter 
               totalVotes={totalVotes} 
             />
@@ -159,7 +152,7 @@ export default function App() {
               isRealtimeActive={isRealtimeActive}
             />
 
-            {/* 3. Chips Opcionales de Zona y Edad (con botón Omitir) */}
+            {/* 3. Chips Opcionales de Zona y Edad (Simplificado a 1 tap) */}
             <DemographicSurvey
               dignidadId={dignidad?.id}
               onSaveDemographics={saveDemographics}
@@ -170,7 +163,7 @@ export default function App() {
               zoneCounts={zoneCounts}
             />
 
-            {/* 5. Botón Grande de Compartir (WhatsApp / Web Share API) */}
+            {/* 5. Botón Grande de Compartir en WhatsApp */}
             <ShareButton
               candidateName={votedCandidate?.nombre}
               dignidadName={dignidad?.nombre}
@@ -179,18 +172,18 @@ export default function App() {
         )}
       </main>
 
-      {/* Footer Informativo con Redes y Créditos */}
+      {/* Footer Informativo */}
       <Footer />
 
       {/* Botón Flotante para Pruebas / Reinicio de Voto (Modo Demo QA) */}
       {hasVoted && (
         <button
           onClick={resetDemoVote}
-          className="fixed bottom-4 right-4 z-30 px-3 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 hover:border-cyan-500/50 text-slate-400 hover:text-cyan-300 text-[11px] font-medium shadow-xl backdrop-blur-md transition-all flex items-center gap-1.5 opacity-60 hover:opacity-100"
-          title="Reiniciar voto y demografía localmente para volver a probar"
+          className="fixed bottom-4 right-4 z-30 px-3 py-1.5 rounded-full bg-slate-900 text-white hover:bg-green-700 text-[11px] font-bold shadow-lg transition-all flex items-center gap-1.5 opacity-60 hover:opacity-100"
+          title="Reiniciar voto localmente para volver a probar"
         >
           <RefreshCw className="w-3 h-3" />
-          <span>Volver a Votar (Demo QA)</span>
+          <span>Volver a Votar (Demo)</span>
         </button>
       )}
     </div>

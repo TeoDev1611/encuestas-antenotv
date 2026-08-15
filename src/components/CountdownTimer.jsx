@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Clock, AlertCircle } from 'lucide-react';
 
 export default function CountdownTimer({ fechaCierre, onExpire }) {
   const [timeLeft, setTimeLeft] = useState({
@@ -54,57 +54,57 @@ export default function CountdownTimer({ fechaCierre, onExpire }) {
 
   if (timeLeft.isExpired) {
     return (
-      <div className="w-full max-w-md mx-auto my-3 px-4 py-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center gap-2.5 text-amber-400 text-sm font-medium animate-fade-in">
+      <div className="w-full max-w-md mx-auto my-3 px-4 py-2.5 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center gap-2 text-red-700 text-sm font-bold">
         <AlertCircle className="w-4 h-4 flex-shrink-0" />
-        <span>Esta encuesta ha finalizado. Consulta los resultados definitivos abajo.</span>
+        <span>Esta encuesta ha finalizado. Resultados definitivos:</span>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-md mx-auto my-4 text-center">
-      <div className="inline-flex items-center gap-2 mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
-        <Clock className="w-3.5 h-3.5 text-brand-accent animate-pulse" />
+    <div className="w-full max-w-md mx-auto my-3.5 text-center">
+      <div className="inline-flex items-center gap-1.5 mb-2 text-xs font-bold uppercase tracking-wider text-slate-600">
+        <Clock className="w-3.5 h-3.5 text-green-700" />
         <span>Tiempo restante para votar</span>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+      <div className="grid grid-cols-4 gap-2">
         {/* Días */}
-        <div className="glass-card p-2 sm:p-2.5 rounded-xl border border-slate-700/60 shadow-lg">
-          <div className="text-xl sm:text-2xl font-black text-white font-mono leading-none">
+        <div className="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-200 shadow-sm">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono leading-none">
             {String(timeLeft.days).padStart(2, '0')}
           </div>
-          <div className="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">
+          <div className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase mt-1">
             Días
           </div>
         </div>
 
         {/* Horas */}
-        <div className="glass-card p-2 sm:p-2.5 rounded-xl border border-slate-700/60 shadow-lg">
-          <div className="text-xl sm:text-2xl font-black text-white font-mono leading-none">
+        <div className="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-200 shadow-sm">
+          <div className="text-xl sm:text-2xl font-black text-slate-900 font-mono leading-none">
             {String(timeLeft.hours).padStart(2, '0')}
           </div>
-          <div className="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">
+          <div className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase mt-1">
             Horas
           </div>
         </div>
 
         {/* Minutos */}
-        <div className="glass-card p-2 sm:p-2.5 rounded-xl border border-slate-700/60 shadow-lg">
-          <div className="text-xl sm:text-2xl font-black text-brand-accent font-mono leading-none">
+        <div className="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-200 shadow-sm">
+          <div className="text-xl sm:text-2xl font-black text-green-700 font-mono leading-none">
             {String(timeLeft.minutes).padStart(2, '0')}
           </div>
-          <div className="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">
+          <div className="text-[10px] sm:text-xs text-green-700 font-bold uppercase mt-1">
             Minutos
           </div>
         </div>
 
         {/* Segundos */}
-        <div className="glass-card p-2 sm:p-2.5 rounded-xl border border-slate-700/60 shadow-lg">
-          <div className="text-xl sm:text-2xl font-black text-blue-400 font-mono leading-none">
+        <div className="bg-white p-2 sm:p-2.5 rounded-xl border border-slate-200 shadow-sm">
+          <div className="text-xl sm:text-2xl font-black text-red-600 font-mono leading-none">
             {String(timeLeft.seconds).padStart(2, '0')}
           </div>
-          <div className="text-[10px] sm:text-xs text-slate-400 font-medium mt-1">
+          <div className="text-[10px] sm:text-xs text-red-600 font-bold uppercase mt-1">
             Segundos
           </div>
         </div>

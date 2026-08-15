@@ -14,7 +14,12 @@ export function useSurvey() {
   const [canton, setCanton] = useState(INITIAL_CANTON);
   const [dignidad, setDignidad] = useState(INITIAL_DIGNIDAD);
   const [candidatos, setCandidatos] = useState(
-    INITIAL_CANDIDATOS.map(c => ({ ...c, total_votos: c.votos_iniciales || 0 }))
+    INITIAL_CANDIDATOS.map(c => ({ 
+      ...c, 
+      id: c.id,
+      candidato_id: c.id,
+      total_votos: c.votos_iniciales || 0 
+    }))
   );
   const [zoneCounts, setZoneCounts] = useState(INITIAL_ZONA_COUNTS);
   const [hasVoted, setHasVoted] = useState(false);
@@ -26,12 +31,12 @@ export function useSurvey() {
   const [isRealtimeActive, setIsRealtimeActive] = useState(false);
   const [honeypotValue, setHoneypotValue] = useState('');
 
-  // Total de votos agregados
+  // Total de votos en tiempo real
   const totalVotes = useMemo(() => {
     return candidatos.reduce((acc, c) => acc + (c.total_votos || 0), 0);
   }, [candidatos]);
 
-  // Verificar si la fecha de cierre ya expiró
+  // Validar si la fecha de cierre ya venció
   const checkExpiration = useCallback((fechaCierre) => {
     if (!fechaCierre) return false;
     const isPast = new Date().getTime() >= new Date(fechaCierre).getTime();
@@ -39,17 +44,16 @@ export function useSurvey() {
     return isPast;
   }, []);
 
-  // Cargar datos de la encuesta y zonas
+  // Cargar datos oficiales desde Supabase
   const loadSurveyData = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     if (!isSupabaseConfigured || !supabase) {
-      // Modo Demo / Contingencia
       const stored = getStoredVote(INITIAL_DIGNIDAD.id);
       if (stored) {
         setHasVoted(true);
-        const match = INITIAL_CANDIDATOS.find(c => c.id === stored.candidato_id);
+        const match = INITIAL_CANDIDATOS.find(c => (c.id === stored.candidato_id || c.candidato_id === stored.candidato_id));
         setVotedCandidate(match || { nombre: stored.candidato_nombre || 'Candidato' });
       }
       checkExpiration(INITIAL_DIGNIDAD.fecha_cierre);
@@ -73,7 +77,7 @@ export function useSurvey() {
       if (digError) throw digError;
 
       if (!digData) {
-        console.warn('No hay dignidades activas en Supabase. Usando contingencia.');
+        console.warn('No hay dignidades activas en Supabase.');
         setLoading(false);
         return;
       }
@@ -90,6 +94,7 @@ export function useSurvey() {
         setHasVoted(true);
         setVotedCandidate({
           id: stored.candidato_id,
+          candidato_id: stored.candidato_id,
           nombre: stored.candidato_nombre,
         });
       }
@@ -108,12 +113,21 @@ export function useSurvey() {
           .eq('dignidad_id', digData.id)
           .order('orden', { ascending: true });
 
-        setCandidatos((rawCand || []).map(c => ({
+        const formattedRaw = (rawCand || []).map(c => ({
           ...c,
-          total_votos: c.conteo_candidatos?.[0]?.total_votos || 0,
-        })));
+          id: c.id,
+          candidato_id: c.id,
+          total_votos: Number(c.conteo_candidatos?.[0]?.total_votos || 0),
+        }));
+        setCandidatos(formattedRaw);
       } else {
-        setCandidatos(candData || []);
+        const formatted = (candData || []).map(c => ({
+          ...c,
+          id: c.id || c.candidato_id,
+          candidato_id: c.candidato_id || c.id,
+          total_votos: Number(c.total_votos || 0),
+        }));
+        setCandidatos(formatted);
       }
 
       // 4. Obtener conteo por zonas
@@ -122,7 +136,7 @@ export function useSurvey() {
         .select('zona, total_votos')
         .eq('dignidad_id', digData.id);
 
-      if (!zoneError && zoneData && zoneData.length > 0) {
+      if (!zoneError && zoneData) {
         setZoneCounts(zoneData);
       }
     } catch (err) {
@@ -133,7 +147,7 @@ export function useSurvey() {
     }
   }, [checkExpiration]);
 
-  // Suscripción Realtime
+  // Suscripción Realtime para actualizar votos instantáneamente
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase || !dignidad?.id) return;
 
@@ -152,8 +166,8 @@ export function useSurvey() {
           if (updated && updated.candidato_id) {
             setCandidatos((prev) =>
               prev.map((c) =>
-                c.id === updated.candidato_id
-                  ? { ...c, total_votos: updated.total_votos }
+                (c.id === updated.candidato_id || c.candidato_id === updated.candidato_id)
+                  ? { ...c, total_votos: Number(updated.total_votos || 0) }
                   : c
               )
             );
@@ -185,6 +199,14 @@ export function useSurvey() {
       return;
     }
 
+    const candidatoId = candidato.id || candidato.candidato_id;
+    const dignidadId = candidato.dignidad_id || dignidad.id;
+
+    if (!candidatoId || !dignidadId) {
+      alert('Error al identificar el candidato o dignidad.');
+      return;
+    }
+
     setIsVoting(true);
     setError(null);
 
@@ -201,37 +223,44 @@ export function useSurvey() {
       if (isSupabaseConfigured && supabase) {
         let voteSuccess = false;
 
+        // 1. Intentar registrar vía Edge Function
         if (EDGE_FUNCTION_VOTE_URL) {
           try {
             const res = await fetch(EDGE_FUNCTION_VOTE_URL, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                candidato_id: candidato.id,
-                dignidad_id: dignidad.id,
+                candidato_id: candidatoId,
+                dignidad_id: dignidadId,
                 device_id: deviceId,
-                honeypot_field: honeypotValue,
+                honeypot_field: honeypotValue || '',
               }),
             });
 
-            const data = await res.json();
-            if (!res.ok || !data.success) {
-              throw new Error(data.error || 'Error al validar el voto.');
+            if (res.ok) {
+              const data = await res.json();
+              if (data.success) {
+                voteSuccess = true;
+              } else {
+                throw new Error(data.error || 'Error al validar el voto.');
+              }
             }
-            voteSuccess = true;
           } catch (edgeErr) {
-            console.warn('Fallo en Edge Function, intentando fallback RPC:', edgeErr.message);
+            console.warn('Edge Function no disponible, usando fallback RPC en base de datos:', edgeErr.message);
           }
         }
 
+        // 2. Si la Edge Function no responde, usar la función RPC en PostgreSQL
         if (!voteSuccess) {
           const fakeIpHash = 'cl_' + (await hashLocalString(deviceId + navigator.userAgent));
           const { data: rpcData, error: rpcError } = await supabase.rpc('registrar_voto', {
-            p_candidato_id: candidato.id,
-            p_dignidad_id: dignidad.id,
+            p_candidato_id: candidatoId,
+            p_dignidad_id: dignidadId,
             p_ip_hash: fakeIpHash,
             p_device_id: deviceId,
-            p_honeypot: honeypotValue,
+            p_honeypot: honeypotValue || '',
+            p_zona: null,
+            p_rango_edad: null,
           });
 
           if (rpcError) throw rpcError;
@@ -241,15 +270,17 @@ export function useSurvey() {
         }
       }
 
-      // Éxito
-      saveStoredVote(dignidad.id, {
-        candidato_id: candidato.id,
+      // Éxito: Guardar en local y actualizar estado
+      saveStoredVote(dignidadId, {
+        candidato_id: candidatoId,
         candidato_nombre: candidato.nombre,
       });
 
       setCandidatos((prev) =>
         prev.map((c) =>
-          c.id === candidato.id ? { ...c, total_votos: (c.total_votos || 0) + 1 } : c
+          (c.id === candidatoId || c.candidato_id === candidatoId)
+            ? { ...c, total_votos: (c.total_votos || 0) + 1 } 
+            : c
         )
       );
 
@@ -268,8 +299,8 @@ export function useSurvey() {
   // Guardar datos demográficos post-voto (Zona / Edad)
   const saveDemographics = async ({ zona, rangoEdad }) => {
     const deviceId = getOrCreateDeviceId();
+    const dignidadId = dignidad.id;
 
-    // Actualizar conteo local de zonas de forma optimista
     if (zona) {
       setZoneCounts((prev) => {
         const exists = prev.some((z) => z.zona === zona);
@@ -286,27 +317,28 @@ export function useSurvey() {
     if (isSupabaseConfigured && supabase) {
       try {
         if (EDGE_FUNCTION_VOTE_URL) {
-          await fetch(EDGE_FUNCTION_VOTE_URL, {
+          const res = await fetch(EDGE_FUNCTION_VOTE_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               action: 'update_demographics',
               device_id: deviceId,
-              dignidad_id: dignidad.id,
+              dignidad_id: dignidadId,
               zona: zona || null,
               rango_edad: rangoEdad || null,
             }),
           });
-        } else {
-          await supabase.rpc('guardar_demograficos', {
-            p_device_id: deviceId,
-            p_dignidad_id: dignidad.id,
-            p_zona: zona || null,
-            p_rango_edad: rangoEdad || null,
-          });
+          if (res.ok) return;
         }
+
+        await supabase.rpc('guardar_demograficos', {
+          p_device_id: deviceId,
+          p_dignidad_id: dignidadId,
+          p_zona: zona || null,
+          p_rango_edad: rangoEdad || null,
+        });
       } catch (e) {
-        console.warn('No se pudo enviar demografía al servidor:', e);
+        console.warn('Demografía guardada localmente:', e);
       }
     }
   };

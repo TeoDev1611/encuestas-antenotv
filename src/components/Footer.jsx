@@ -1,33 +1,33 @@
 import React from 'react';
-import { MapPin, Heart, Tv } from 'lucide-react';
+import { MapPin, Tv } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="w-full mt-16 pt-12 pb-8 border-t border-slate-800/80 bg-slate-950/60 backdrop-blur-md text-slate-400">
+    <footer className="w-full mt-12 pt-8 pb-6 border-t border-slate-200 bg-white text-slate-600">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-8 border-b border-slate-800/60">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-slate-100">
           {/* Info Anteño TV */}
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left">
             <div className="flex items-center gap-2">
-              <Tv className="w-5 h-5 text-brand-primary" />
-              <span className="text-lg font-bold text-white tracking-tight">Anteño TV</span>
+              <Tv className="w-5 h-5 text-green-700" />
+              <span className="text-lg font-black text-slate-900 tracking-tight">Anteño TV</span>
             </div>
-            <p className="text-xs text-brand-accent italic mt-0.5">
+            <p className="text-xs text-green-800 font-bold italic mt-0.5">
               Desde el Corazón de Imbabura
             </p>
-            <div className="flex items-center gap-1 text-xs text-slate-500 mt-2">
-              <MapPin className="w-3.5 h-3.5 text-slate-400" />
-              <span>Antonio Ante • Imbabura • Ecuador</span>
+            <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
+              <MapPin className="w-3.5 h-3.5 text-red-600" />
+              <span>Atuntaqui • Antonio Ante • Imbabura • Ecuador</span>
             </div>
           </div>
 
-          {/* Enlaces Sociales */}
-          <div className="flex items-center gap-3">
+          {/* Enlaces */}
+          <div className="flex items-center gap-2">
             <a
               href="https://www.facebook.com/AntenoTVmiradiferente"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500/50 hover:text-blue-400 text-slate-300 text-xs font-semibold transition-all"
+              className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 hover:border-blue-500 text-slate-700 hover:text-blue-600 text-xs font-bold transition-all"
             >
               Facebook
             </a>
@@ -35,7 +35,7 @@ export default function Footer() {
               href="https://www.youtube.com/channel/UCzigW_U4kwYEjrL-Kh_2Bcg"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-red-500/50 hover:text-red-400 text-slate-300 text-xs font-semibold transition-all"
+              className="px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 hover:border-red-500 text-slate-700 hover:text-red-600 text-xs font-bold transition-all"
             >
               YouTube
             </a>
@@ -43,23 +43,23 @@ export default function Footer() {
               href="https://antenotv.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/30 text-cyan-300 text-xs font-semibold hover:border-cyan-400 transition-all"
+              className="px-3 py-1.5 rounded-xl bg-green-50 border border-green-300 text-green-800 text-xs font-bold hover:bg-green-100 transition-all"
             >
-              Sitio Oficial
+              Sitio Web
             </a>
           </div>
         </div>
 
-        {/* Créditos y Copyright */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 text-center sm:text-left">
+        {/* Créditos */}
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 text-center sm:text-left">
           <p>© 2026 Anteño TV. Todos los derechos reservados.</p>
-          <p className="flex items-center gap-1 text-slate-400">
-            <span>Diseñado y construido por</span>
+          <p className="flex items-center gap-1 text-slate-600 font-medium">
+            <span>Desarrollado por</span>
             <a
               href="https://github.com/TeoDev1611"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-bold text-slate-300 hover:text-brand-accent transition-colors"
+              className="font-black text-slate-900 hover:text-green-700 transition-colors"
             >
               @TeoDev1611
             </a>

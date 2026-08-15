@@ -1,10 +1,13 @@
 import React from 'react';
-import { ShieldCheck, Code2 } from 'lucide-react';
+import { Code2 } from 'lucide-react';
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-40 w-full glass">
-      <div className="max-w-4xl mx-auto px-4 py-3 sm:py-3.5 flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-sm">
+      {/* Franja de la Bandera de Antonio Ante (Verde y Rojo) */}
+      <div className="h-1.5 w-full flag-antonio-ante"></div>
+
+      <div className="max-w-4xl mx-auto px-4 py-2.5 sm:py-3 flex items-center justify-between gap-3">
         {/* Marca Principal: Anteño TV */}
         <a 
           href="https://antenotv.vercel.app/" 
@@ -13,8 +16,7 @@ export default function Header() {
           className="flex items-center gap-3 group transition-transform active:scale-95"
           title="Anteño TV - Desde el Corazón de Imbabura"
         >
-          <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-white rounded-full p-1.5 shadow-lg group-hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all">
-            {/* Logo SVG Anteño TV */}
+          <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-slate-900 rounded-full p-1.5 shadow-md">
             <svg 
               className="w-full h-full object-contain" 
               viewBox="0 0 64 64" 
@@ -35,15 +37,15 @@ export default function Header() {
 
           <div className="flex flex-col leading-tight">
             <div className="flex items-center gap-1.5">
-              <span className="text-xl sm:text-2xl font-black tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-cyan-400 transition-all duration-300">
+              <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
                 Anteño TV
               </span>
-              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-black bg-red-100 text-red-700 border border-red-200">
                 VOTA 2026
               </span>
             </div>
-            <span className="text-[9px] sm:text-[10px] uppercase tracking-widest text-brand-accent font-semibold">
-              Desde el Corazón de Imbabura
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-green-700 font-bold">
+              Antonio Ante • Imbabura
             </span>
           </div>
         </a>
@@ -53,14 +55,14 @@ export default function Header() {
           href="https://github.com/TeoDev1611"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/60 hover:border-cyan-500/50 hover:bg-slate-800 text-slate-300 hover:text-white transition-all text-xs group"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-300 hover:border-green-600 hover:bg-green-50 text-slate-700 transition-all text-xs group"
           title="Desarrollador de la plataforma"
         >
-          <Code2 className="w-3.5 h-3.5 text-brand-accent group-hover:rotate-12 transition-transform" />
+          <Code2 className="w-3.5 h-3.5 text-green-700" />
           <div className="flex flex-col text-right sm:text-left leading-none">
-            <span className="text-[9px] text-slate-400 font-light">Desarrollado por</span>
-            <span className="font-semibold text-slate-200 group-hover:text-brand-accent transition-colors">
-              Teo <span className="text-brand-accent text-[10px]">Dev</span>
+            <span className="text-[9px] text-slate-500 font-normal">Desarrollado por</span>
+            <span className="font-bold text-slate-900 group-hover:text-green-700 transition-colors">
+              TeoDev
             </span>
           </div>
         </a>
