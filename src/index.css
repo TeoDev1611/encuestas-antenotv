@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  --color-brand-dark: #0f172a;
+  --color-brand-darker: #020617;
+  --color-brand-card: #1e293b;
+  --color-brand-primary: #3b82f6;
+  --color-brand-primary-hover: #2563eb;
+  --color-brand-accent: #06b6d4;
+  --color-brand-accent-hover: #0891b2;
+  --color-brand-gold: #eab308;
+  --color-brand-success: #10b981;
+  --color-brand-danger: #ef4444;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+    background-color: #0f172a;
+    color: #f8fafc;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: #0f172a;
+    color: #f1f5f9;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+}
+
+/* Glassmorphism Styles (Extracted from Anteño TV) */
+.glass {
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: linear-gradient(
+    145deg,
+    rgba(30, 41, 59, 0.65) 0%,
+    rgba(15, 23, 42, 0.85) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 20px 30px -10px rgba(15, 23, 42, 0.8), 0 0 25px rgba(59, 130, 246, 0.15);
+}
+
+/* Glow effects */
+.glow-primary {
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.35);
+}
+
+.glow-accent {
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.35);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
