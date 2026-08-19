@@ -16,23 +16,12 @@ export default function Header() {
           className="flex items-center gap-3 group transition-transform active:scale-95"
           title="Anteño TV - Desde el Corazón de Imbabura"
         >
-          <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center bg-slate-900 rounded-full p-1.5 shadow-md">
-            <svg 
-              className="w-full h-full object-contain" 
-              viewBox="0 0 64 64" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M32 53H48V55C48 56.1 47.1 57 46 57H34C32.9 57 32 56.1 32 55V53Z" fill="#57B7EB"/>
-              <path d="M36 57H44V61H36V57Z" fill="#57B7EB"/>
-              <path d="M32 53V55C32 56.1 32.9 57 34 57H35C36.1 57 37 56.1 37 55H48V53H32Z" fill="#4891D3"/>
-              <rect x="9" y="3" width="8" height="19" rx="4" fill="#F9E109"/>
-              <rect x="19" y="25" width="42" height="28" rx="4" fill="#C4F236"/>
-              <path d="M31 7H55C56.1 7 57 7.9 57 9V25H29V9C29 7.9 29.9 7H31Z" fill="#AAE1F9"/>
-              <circle cx="40" cy="39" r="8" fill="#57B7EB"/>
-              <circle cx="40" cy="39" r="4" fill="#4891D3"/>
-              <circle cx="43" cy="15" r="4" fill="#F9E109"/>
-            </svg>
+          <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center p-0.5 rounded-full shadow-sm bg-white border border-slate-100">
+            <img 
+              src="/logo-anteno-tv.svg" 
+              alt="Anteño TV Logo" 
+              className="w-full h-full object-contain drop-shadow-sm"
+            />
           </div>
 
           <div className="flex flex-col leading-tight">
@@ -50,7 +39,7 @@ export default function Header() {
           </div>
         </a>
 
-        {/* Marca Secundaria: Desarrollado por TeoDev */}
+        {/* Marca Secundaria: Desarrollado por Teo */}
         <a
           href="https://github.com/TeoDev1611"
           target="_blank"
@@ -62,7 +51,7 @@ export default function Header() {
           <div className="flex flex-col text-right sm:text-left leading-none">
             <span className="text-[9px] text-slate-500 font-normal">Desarrollado por</span>
             <span className="font-bold text-slate-900 group-hover:text-green-700 transition-colors">
-              TeoDev
+              Teo
             </span>
           </div>
         </a>

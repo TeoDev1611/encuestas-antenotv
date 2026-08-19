@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase, isSupabaseConfigured, EDGE_FUNCTION_VOTE_URL } from '../lib/supabase';
 import { getStoredVote, saveStoredVote } from '../lib/storage';
 import { getOrCreateDeviceId, HONEYPOT_FIELD_NAME } from '../lib/antiSpam';
@@ -31,9 +31,9 @@ export function useSurvey() {
   const [isRealtimeActive, setIsRealtimeActive] = useState(false);
   const [honeypotValue, setHoneypotValue] = useState('');
 
-  // Total de votos en tiempo real
+  // Total de votos calculados en tiempo real
   const totalVotes = useMemo(() => {
-    return candidatos.reduce((acc, c) => acc + (c.total_votos || 0), 0);
+    return candidatos.reduce((acc, c) => acc + (Number(c.total_votos) || 0), 0);
   }, [candidatos]);
 
   // Validar si la fecha de cierre ya venció
@@ -44,7 +44,7 @@ export function useSurvey() {
     return isPast;
   }, []);
 
-  // Cargar datos oficiales desde Supabase
+  // Cargar datos completos iniciales
   const loadSurveyData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -99,35 +99,20 @@ export function useSurvey() {
         });
       }
 
-      // 3. Obtener candidatos consolidados
+      // 3. Cargar conteos de candidatos desde la vista
       const { data: candData, error: candError } = await supabase
         .from('vista_resultados_candidatos')
         .select('*')
         .eq('dignidad_id', digData.id)
         .order('orden', { ascending: true });
 
-      if (candError) {
-        const { data: rawCand } = await supabase
-          .from('candidatos')
-          .select('*, conteo_candidatos(total_votos)')
-          .eq('dignidad_id', digData.id)
-          .order('orden', { ascending: true });
-
-        const formattedRaw = (rawCand || []).map(c => ({
-          ...c,
-          id: c.id,
-          candidato_id: c.id,
-          total_votos: Number(c.conteo_candidatos?.[0]?.total_votos || 0),
-        }));
-        setCandidatos(formattedRaw);
-      } else {
-        const formatted = (candData || []).map(c => ({
+      if (!candError && candData && candData.length > 0) {
+        setCandidatos(candData.map(c => ({
           ...c,
           id: c.id || c.candidato_id,
           candidato_id: c.candidato_id || c.id,
           total_votos: Number(c.total_votos || 0),
-        }));
-        setCandidatos(formatted);
+        })));
       }
 
       // 4. Obtener conteo por zonas
@@ -147,23 +132,25 @@ export function useSurvey() {
     }
   }, [checkExpiration]);
 
-  // Suscripción Realtime para actualizar votos instantáneamente
+  // Suscripción Realtime vía WebSockets solo a la tabla de conteo
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase || !dignidad?.id) return;
 
+    const currentDigId = dignidad.id;
+
     const channel = supabase
-      .channel(`realtime-conteo-${dignidad.id}`)
+      .channel(`realtime-survey-${currentDigId}`)
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: '*', // INSERT y UPDATE
           schema: 'public',
           table: 'conteo_candidatos',
-          filter: `dignidad_id=eq.${dignidad.id}`,
         },
         (payload) => {
           const updated = payload.new;
           if (updated && updated.candidato_id) {
+            // Actualiza el estado con el número exacto y confiable de la base de datos
             setCandidatos((prev) =>
               prev.map((c) =>
                 (c.id === updated.candidato_id || c.candidato_id === updated.candidato_id)
@@ -182,6 +169,27 @@ export function useSurvey() {
       supabase.removeChannel(channel);
     };
   }, [dignidad?.id]);
+
+  // Polling inteligente CADA 5 SEGUNDOS para las zonas y como respaldo de candidatos
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !dignidad?.id) return;
+    if (!hasVoted && !isExpired) return; // Solo poll si está viendo los resultados
+
+    const interval = setInterval(async () => {
+      try {
+        // Refrescar Zonas
+        const { data: zoneData } = await supabase
+          .from('vista_conteo_zonas')
+          .select('zona, total_votos')
+          .eq('dignidad_id', dignidad.id);
+        if (zoneData) setZoneCounts(zoneData);
+      } catch (e) {
+        console.warn('Error en polling de zonas:', e);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [hasVoted, isExpired, dignidad?.id]);
 
   useEffect(() => {
     loadSurveyData();
@@ -212,7 +220,6 @@ export function useSurvey() {
 
     const deviceId = getOrCreateDeviceId();
 
-    // Honeypot check
     if (honeypotValue && honeypotValue.trim() !== '') {
       console.warn('Bot bloqueado por honeypot.');
       setIsVoting(false);
@@ -223,7 +230,6 @@ export function useSurvey() {
       if (isSupabaseConfigured && supabase) {
         let voteSuccess = false;
 
-        // 1. Intentar registrar vía Edge Function
         if (EDGE_FUNCTION_VOTE_URL) {
           try {
             const res = await fetch(EDGE_FUNCTION_VOTE_URL, {
@@ -246,11 +252,10 @@ export function useSurvey() {
               }
             }
           } catch (edgeErr) {
-            console.warn('Edge Function no disponible, usando fallback RPC en base de datos:', edgeErr.message);
+            console.warn('Edge Function no disponible, usando fallback RPC en base de datos.');
           }
         }
 
-        // 2. Si la Edge Function no responde, usar la función RPC en PostgreSQL
         if (!voteSuccess) {
           const fakeIpHash = 'cl_' + (await hashLocalString(deviceId + navigator.userAgent));
           const { data: rpcData, error: rpcError } = await supabase.rpc('registrar_voto', {
@@ -270,16 +275,17 @@ export function useSurvey() {
         }
       }
 
-      // Éxito: Guardar en local y actualizar estado
+      // Éxito: Guardar en local y actualizar estado inmediatamente
       saveStoredVote(dignidadId, {
         candidato_id: candidatoId,
         candidato_nombre: candidato.nombre,
       });
 
+      // Actualización optimista (< 1ms)
       setCandidatos((prev) =>
         prev.map((c) =>
           (c.id === candidatoId || c.candidato_id === candidatoId)
-            ? { ...c, total_votos: (c.total_votos || 0) + 1 } 
+            ? { ...c, total_votos: (Number(c.total_votos) || 0) + 1 } 
             : c
         )
       );
@@ -287,6 +293,7 @@ export function useSurvey() {
       setVotedCandidate(candidato);
       setHasVoted(true);
       setIsJustVoted(true);
+
     } catch (err) {
       console.error('Error al emitir voto:', err);
       setError(err.message || 'Hubo un problema al procesar tu voto.');
@@ -306,7 +313,7 @@ export function useSurvey() {
         const exists = prev.some((z) => z.zona === zona);
         if (exists) {
           return prev.map((z) =>
-            z.zona === zona ? { ...z, total_votos: z.total_votos + 1 } : z
+            z.zona === zona ? { ...z, total_votos: (Number(z.total_votos) || 0) + 1 } : z
           );
         } else {
           return [...prev, { zona, total_votos: 1 }];
@@ -347,9 +354,17 @@ export function useSurvey() {
     localStorage.removeItem(`anteno_voto_dignidad_${dignidad.id}`);
     localStorage.removeItem(`anteno_demo_dignidad_${dignidad.id}`);
     document.cookie = `anteno_voto_dignidad_${dignidad.id}=; path=/; max-age=0`;
+    
+    // IMPORTANTE: Limpiar también el DEVICE ID para permitir un voto nuevo desde la base de datos!
+    localStorage.removeItem('anteno_device_fingerprint_v1');
+    document.cookie = `anteno_device_fingerprint_v1=; path=/; max-age=0`;
+    
     setHasVoted(false);
     setVotedCandidate(null);
     setIsJustVoted(false);
+    
+    // Recargar todo el estado limpio desde la BD
+    loadSurveyData();
   };
 
   return {

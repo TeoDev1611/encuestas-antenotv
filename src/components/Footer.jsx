@@ -61,7 +61,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="font-black text-slate-900 hover:text-green-700 transition-colors"
             >
-              @TeoDev1611
+              @Teo
             </a>
           </p>
         </div>

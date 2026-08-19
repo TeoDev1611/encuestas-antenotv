@@ -49,22 +49,22 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-800 px-4">
-        <div className="relative mb-3">
-          <div className="w-14 h-14 rounded-full border-4 border-slate-200 border-t-green-700 animate-spin"></div>
-          <div className="absolute inset-0 flex items-center justify-center text-xs font-black text-green-700">
-            2026
-          </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50">
+        <div className="animate-pulse flex flex-col items-center">
+          <img 
+            src="/logo-anteno-negro.png" 
+            alt="Cargando Anteño TV" 
+            className="w-24 h-auto mb-6 opacity-80"
+          />
+          <h2 className="text-xl font-bold text-slate-800">Cargando Encuesta...</h2>
         </div>
-        <h2 className="text-xl font-black text-slate-900 tracking-tight">Anteño TV</h2>
-        <p className="text-xs text-slate-500 font-medium mt-1">Cargando encuesta oficial...</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f8fafc] text-slate-900 relative">
-      {/* 1. Header Oficial (Anteño TV + TeoDev + Bandera Antonio Ante) */}
+      {/* 1. Header Oficial (Anteño TV + Teo + Bandera Antonio Ante) */}
       <Header />
 
       {/* 2. Disclaimer Legal Visible Inmediatamente */}
@@ -176,7 +176,7 @@ export default function App() {
       <Footer />
 
       {/* Botón Flotante para Pruebas / Reinicio de Voto (Modo Demo QA) */}
-      {hasVoted && (
+      {hasVoted && import.meta.env.DEV && (
         <button
           onClick={resetDemoVote}
           className="fixed bottom-4 right-4 z-30 px-3 py-1.5 rounded-full bg-slate-900 text-white hover:bg-green-700 text-[11px] font-bold shadow-lg transition-all flex items-center gap-1.5 opacity-60 hover:opacity-100"
